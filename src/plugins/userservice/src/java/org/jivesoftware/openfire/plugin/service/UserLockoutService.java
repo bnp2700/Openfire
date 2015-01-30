@@ -8,16 +8,17 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.jivesoftware.openfire.exceptions.ServiceException;
-import org.jivesoftware.openfire.plugin.UserServicePluginNG;
+import org.jivesoftware.openfire.plugin.UserServiceManager;
+import org.jivesoftware.openfire.plugin.UserServicePluginNGProxy;
 
 @Path("userService/lockouts")
 public class UserLockoutService {
 
-	private UserServicePluginNG plugin;
+	private UserServiceManager plugin;
 
 	@PostConstruct
 	public void init() {
-		plugin = UserServicePluginNG.getInstance();
+		plugin = UserServicePluginNGProxy.getInstance();
 	}
 
 	@POST

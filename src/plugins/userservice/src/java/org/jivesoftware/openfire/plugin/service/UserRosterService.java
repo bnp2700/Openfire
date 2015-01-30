@@ -16,7 +16,8 @@ import org.jivesoftware.openfire.entity.RosterEntities;
 import org.jivesoftware.openfire.entity.RosterItemEntity;
 import org.jivesoftware.openfire.exceptions.ExceptionType;
 import org.jivesoftware.openfire.exceptions.ServiceException;
-import org.jivesoftware.openfire.plugin.UserServicePluginNG;
+import org.jivesoftware.openfire.plugin.UserServiceManager;
+import org.jivesoftware.openfire.plugin.UserServicePluginNGProxy;
 import org.jivesoftware.openfire.user.UserAlreadyExistsException;
 import org.jivesoftware.openfire.user.UserNotFoundException;
 
@@ -27,11 +28,11 @@ public class UserRosterService {
 
 	private static final String COULD_NOT_CREATE_ROSTER_ITEM = "Could not create roster item";
 
-	private UserServicePluginNG plugin;
+	private UserServiceManager plugin;
 
 	@PostConstruct
 	public void init() {
-		plugin = UserServicePluginNG.getInstance();
+		plugin = UserServicePluginNGProxy.getInstance();
 	}
 
 	@GET

@@ -34,10 +34,11 @@ import org.xmpp.packet.JID;
 /**
  * The Class UserServicePluginNG.
  */
-public class UserServicePluginNG {
+public class UserServicePluginNG implements UserServiceManager {
 	/** The Constant INSTANCE. */
-	public static final UserServicePluginNG INSTANCE = new UserServicePluginNG();
+	private static final UserServiceManager INSTANCE = new UserServicePluginNG();
 
+	
 	/** The user manager. */
 	private UserManager userManager;
 
@@ -52,7 +53,7 @@ public class UserServicePluginNG {
 	 *
 	 * @return single instance of UserServicePluginNG
 	 */
-	public static UserServicePluginNG getInstance() {
+	public static UserServiceManager getInstance() {
 		return INSTANCE;
 	}
 
@@ -65,14 +66,11 @@ public class UserServicePluginNG {
 		rosterManager = server.getRosterManager();
 	}
 
-	/**
-	 * Creates the user.
-	 *
-	 * @param userEntity
-	 *            the user entity
-	 * @throws ServiceException
-	 *             the service exception
+
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#createUser(org.jivesoftware.openfire.entity.UserEntity)
 	 */
+	@Override
 	public void createUser(UserEntity userEntity) throws ServiceException {
 		if (userEntity != null && !userEntity.getUsername().isEmpty()) {
 			if (userEntity.getPassword() == null) {
@@ -90,16 +88,10 @@ public class UserServicePluginNG {
 		}
 	}
 
-	/**
-	 * Update user.
-	 *
-	 * @param username
-	 *            the username
-	 * @param userEntity
-	 *            the user entity
-	 * @throws ServiceException
-	 *             the service exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#updateUser(java.lang.String, org.jivesoftware.openfire.entity.UserEntity)
 	 */
+	@Override
 	public void updateUser(String username, UserEntity userEntity) throws ServiceException {
 		if (userEntity != null && !username.isEmpty()) {
 			User user = getAndCheckUser(username);
@@ -117,14 +109,10 @@ public class UserServicePluginNG {
 		}
 	}
 
-	/**
-	 * Delete user.
-	 *
-	 * @param username
-	 *            the username
-	 * @throws ServiceException
-	 *             the service exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#deleteUser(java.lang.String)
 	 */
+	@Override
 	public void deleteUser(String username) throws ServiceException {
 		User user = getAndCheckUser(username);
 		userManager.deleteUser(user);
@@ -132,67 +120,46 @@ public class UserServicePluginNG {
 		rosterManager.deleteRoster(server.createJID(username, null));
 	}
 
-	/**
-	 * Gets the user entities.
-	 *
-	 * @param userSearch
-	 *            the user search
-	 * @return the user entities
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#getUserEntities(java.lang.String)
 	 */
+	@Override
 	public UserEntities getUserEntities(String userSearch) {
 		UserEntities userEntities = new UserEntities();
 		userEntities.setUsers(UserUtils.convertUsersToUserEntities(userManager.getUsers(), userSearch));
 		return userEntities;
 	}
 
-	/**
-	 * Gets the user entity.
-	 *
-	 * @param username
-	 *            the username
-	 * @return the user entity
-	 * @throws ServiceException
-	 *             the service exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#getUserEntity(java.lang.String)
 	 */
+	@Override
 	public UserEntity getUserEntity(String username) throws ServiceException {
 		return UserUtils.convertUserToUserEntity(getAndCheckUser(username));
 	}
 
-	/**
-	 * Enable user.
-	 *
-	 * @param username
-	 *            the username
-	 * @throws ServiceException
-	 *             the service exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#enableUser(java.lang.String)
 	 */
+	@Override
 	public void enableUser(String username) throws ServiceException {
 		getAndCheckUser(username);
 		LockOutManager.getInstance().enableAccount(username);
 	}
 
-	/**
-	 * Disable user.
-	 *
-	 * @param username
-	 *            the username
-	 * @throws ServiceException
-	 *             the service exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#disableUser(java.lang.String)
 	 */
+	@Override
 	public void disableUser(String username) throws ServiceException {
 		getAndCheckUser(username);
 		LockOutManager.getInstance().disableAccount(username, null, null);
 	}
 
-	/**
-	 * Gets the roster entities.
-	 *
-	 * @param username
-	 *            the username
-	 * @return the roster entities
-	 * @throws ServiceException
-	 *             the service exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#getRosterEntities(java.lang.String)
 	 */
+	@Override
 	public RosterEntities getRosterEntities(String username) throws ServiceException {
 		Roster roster = getUserRoster(username);
 
@@ -208,22 +175,10 @@ public class UserServicePluginNG {
 		return new RosterEntities(rosterEntities);
 	}
 
-	/**
-	 * Adds the roster item.
-	 *
-	 * @param username
-	 *            the username
-	 * @param rosterItemEntity
-	 *            the roster item entity
-	 * @throws ServiceException
-	 *             the service exception
-	 * @throws UserAlreadyExistsException
-	 *             the user already exists exception
-	 * @throws SharedGroupException
-	 *             the shared group exception
-	 * @throws UserNotFoundException
-	 *             the user not found exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#addRosterItem(java.lang.String, org.jivesoftware.openfire.entity.RosterItemEntity)
 	 */
+	@Override
 	public void addRosterItem(String username, RosterItemEntity rosterItemEntity) throws ServiceException,
 			UserAlreadyExistsException, SharedGroupException, UserNotFoundException {
 		Roster roster = getUserRoster(username);
@@ -248,24 +203,10 @@ public class UserServicePluginNG {
 		}
 	}
 
-	/**
-	 * Update roster item.
-	 *
-	 * @param username
-	 *            the username
-	 * @param rosterJid
-	 *            the roster jid
-	 * @param rosterItemEntity
-	 *            the roster item entity
-	 * @throws ServiceException
-	 *             the service exception
-	 * @throws UserNotFoundException
-	 *             the user not found exception
-	 * @throws UserAlreadyExistsException
-	 *             the user already exists exception
-	 * @throws SharedGroupException
-	 *             the shared group exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#updateRosterItem(java.lang.String, java.lang.String, org.jivesoftware.openfire.entity.RosterItemEntity)
 	 */
+	@Override
 	public void updateRosterItem(String username, String rosterJid, RosterItemEntity rosterItemEntity)
 			throws ServiceException, UserNotFoundException, UserAlreadyExistsException, SharedGroupException {
 		getAndCheckUser(username);
@@ -286,18 +227,10 @@ public class UserServicePluginNG {
 		roster.updateRosterItem(rosterItem);
 	}
 
-	/**
-	 * Delete roster item.
-	 *
-	 * @param username
-	 *            the username
-	 * @param rosterJid
-	 *            the roster jid
-	 * @throws SharedGroupException
-	 *             the shared group exception
-	 * @throws ServiceException
-	 *             the service exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#deleteRosterItem(java.lang.String, java.lang.String)
 	 */
+	@Override
 	public void deleteRosterItem(String username, String rosterJid) throws SharedGroupException, ServiceException {
 		getAndCheckUser(username);
 		Roster roster = getUserRoster(username);
@@ -309,15 +242,10 @@ public class UserServicePluginNG {
 		}
 	}
 
-	/**
-	 * Gets the user groups.
-	 *
-	 * @param username
-	 *            the username
-	 * @return the user groups
-	 * @throws ServiceException
-	 *             the service exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#getUserGroups(java.lang.String)
 	 */
+	@Override
 	public List<String> getUserGroups(String username) throws ServiceException {
 		User user = getAndCheckUser(username);
 		Collection<Group> groups = GroupManager.getInstance().getGroups(user);
@@ -329,17 +257,10 @@ public class UserServicePluginNG {
 		return groupNames;
 	}
 
-	/**
-	 * Adds the user to group.
-	 *
-	 * @param username
-	 *            the username
-	 * @param userGroupsEntity
-	 *            the user groups entity
-	 * @throws ServiceException
-	 * @throws GroupAlreadyExistsException
-	 *             the group already exists exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#addUserToGroups(java.lang.String, org.jivesoftware.openfire.entity.UserGroupsEntity)
 	 */
+	@Override
 	public void addUserToGroups(String username, UserGroupsEntity userGroupsEntity) throws ServiceException {
 		if (userGroupsEntity != null) {
 			Collection<Group> groups = new ArrayList<Group>();
@@ -360,16 +281,10 @@ public class UserServicePluginNG {
 		}
 	}
 
-	/**
-	 * Delete user from groups.
-	 *
-	 * @param username
-	 *            the username
-	 * @param userGroupsEntity
-	 *            the user groups entity
-	 * @throws ServiceException
-	 *             the service exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#deleteUserFromGroups(java.lang.String, org.jivesoftware.openfire.entity.UserGroupsEntity)
 	 */
+	@Override
 	public void deleteUserFromGroups(String username, UserGroupsEntity userGroupsEntity) throws ServiceException {
 		if (userGroupsEntity != null) {
 			for (String groupName : userGroupsEntity.getGroupNames()) {
@@ -385,17 +300,10 @@ public class UserServicePluginNG {
 		}
 	}
 
-	/**
-	 * Gets the user entities by property key and or value.
-	 *
-	 * @param propertyKey
-	 *            the property key
-	 * @param propertyValue
-	 *            the property value (can be null)
-	 * @return the user entities by property
-	 * @throws ServiceException
-	 *             the service exception
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.plugin.UserServiceManager#getUserEntitiesByProperty(java.lang.String, java.lang.String)
 	 */
+	@Override
 	public UserEntities getUserEntitiesByProperty(String propertyKey, String propertyValue) throws ServiceException {
 		List<String> usernames = PropertyDAO.getUsernameByProperty(propertyKey, propertyValue);
 		List<UserEntity> users = new ArrayList<UserEntity>();

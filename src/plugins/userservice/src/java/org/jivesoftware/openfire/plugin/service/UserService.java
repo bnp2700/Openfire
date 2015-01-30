@@ -15,16 +15,17 @@ import javax.ws.rs.core.Response;
 import org.jivesoftware.openfire.entity.UserEntities;
 import org.jivesoftware.openfire.entity.UserEntity;
 import org.jivesoftware.openfire.exceptions.ServiceException;
-import org.jivesoftware.openfire.plugin.UserServicePluginNG;
+import org.jivesoftware.openfire.plugin.UserServiceManager;
+import org.jivesoftware.openfire.plugin.UserServicePluginNGProxy;
 
 @Path("userService/users")
 public class UserService {
 
-	private UserServicePluginNG plugin;
+	private UserServiceManager plugin;
 
 	@PostConstruct
 	public void init() {
-		plugin = UserServicePluginNG.getInstance();
+		plugin = UserServicePluginNGProxy.getInstance();
 	}
 
 	@GET
