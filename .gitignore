@@ -1,5 +1,6 @@
 target/
 work/
+build/
 
 # Ignore Intellij Idea project files
 *.iml
