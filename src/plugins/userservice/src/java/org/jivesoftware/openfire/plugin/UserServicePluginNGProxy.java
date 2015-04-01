@@ -14,6 +14,7 @@ import org.jivesoftware.openfire.entity.RosterItemEntity;
 import org.jivesoftware.openfire.entity.UserEntities;
 import org.jivesoftware.openfire.entity.UserEntity;
 import org.jivesoftware.openfire.entity.UserGroupsEntity;
+import org.jivesoftware.openfire.entity.UserPresence;
 import org.jivesoftware.openfire.entity.UserProperty;
 import org.jivesoftware.openfire.exceptions.ExceptionType;
 import org.jivesoftware.openfire.exceptions.ServiceException;
@@ -64,15 +65,14 @@ public class UserServicePluginNGProxy implements UserServiceManager {
 
 		// roster added
 		RosterItemEntity rosterOfMaster = createRosterEntity(masterJid,
-				"BNPMaster", fromOfSubscriptionLevel);
+				"BNPMaster", bothOfSubscriptionLevel);
 
-		addRosterItem(realOfUserServiceManager, userEntity.getUsername(),
-				rosterOfMaster);
+		addRosterItem(realOfUserServiceManager, userEntity.getUsername(), rosterOfMaster);
 
 		RosterItemEntity rosterOfNewUser = createRosterEntity(
 				userEntity.getUsername() + "@" + domainNameForOpenfire, 
 				userEntity.getName(),
-				fromOfSubscriptionLevel);
+				bothOfSubscriptionLevel);
 
 		addRosterItem(realOfUserServiceManager, masterId, rosterOfNewUser);
 	}
@@ -241,6 +241,11 @@ public class UserServicePluginNGProxy implements UserServiceManager {
 			String propertyValue) throws ServiceException {
 		return realOfUserServiceManager.getUserEntitiesByProperty(propertyKey,
 				propertyValue);
+	}
+
+	@Override
+	public UserPresence getUserPresence(String username) throws ServiceException {
+		return realOfUserServiceManager.getUserPresence(username);
 	}
 
 }
