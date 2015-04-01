@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
+import org.jivesoftware.openfire.PresenceManager;
 import org.jivesoftware.openfire.SharedGroupException;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.entity.RosterEntities;
@@ -13,6 +14,7 @@ import org.jivesoftware.openfire.entity.RosterItemEntity;
 import org.jivesoftware.openfire.entity.UserEntities;
 import org.jivesoftware.openfire.entity.UserEntity;
 import org.jivesoftware.openfire.entity.UserGroupsEntity;
+import org.jivesoftware.openfire.entity.UserPresence;
 import org.jivesoftware.openfire.entity.UserProperty;
 import org.jivesoftware.openfire.exceptions.ExceptionType;
 import org.jivesoftware.openfire.exceptions.ServiceException;
@@ -30,6 +32,7 @@ import org.jivesoftware.openfire.user.UserManager;
 import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.openfire.utils.UserUtils;
 import org.xmpp.packet.JID;
+import org.xmpp.packet.Presence;
 
 /**
  * The Class UserServicePluginNG.
@@ -47,6 +50,8 @@ public class UserServicePluginNG implements UserServiceManager {
 
 	/** The server. */
 	private XMPPServer server;
+	
+	private PresenceManager presenceManager;
 
 	/**
 	 * Gets the single instance of UserServicePluginNG.
@@ -64,6 +69,7 @@ public class UserServicePluginNG implements UserServiceManager {
 		server = XMPPServer.getInstance();
 		userManager = server.getUserManager();
 		rosterManager = server.getRosterManager();
+		presenceManager = server.getPresenceManager();
 	}
 
 
@@ -317,6 +323,23 @@ public class UserServicePluginNG implements UserServiceManager {
 		return userEntities;
 	}
 
+	@Override
+	public UserPresence getUserPresence(String username) throws ServiceException {
+		UserPresence userPresence = new UserPresence();
+		User user = null;
+		user = getAndCheckUser(username);
+		
+		Presence presence = presenceManager.getPresence( user );
+		if( presence == null ) {
+			userPresence.setConnected(false);
+		} else {
+			userPresence.setConnected(true);
+			userPresence.setStatus(presence.getStatus());
+		}
+		
+		return userPresence;
+	}
+
 	/**
 	 * Adds the properties.
 	 *
@@ -400,4 +423,5 @@ public class UserServicePluginNG implements UserServiceManager {
 					Response.Status.NOT_FOUND, e);
 		}
 	}
+
 }

@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import org.jivesoftware.admin.AuthCheckFilter;
 import org.jivesoftware.openfire.plugin.service.UserGroupService;
 import org.jivesoftware.openfire.plugin.service.UserLockoutService;
+import org.jivesoftware.openfire.plugin.service.UserPresenceService;
 import org.jivesoftware.openfire.plugin.service.UserRosterService;
 import org.jivesoftware.openfire.plugin.service.UserService;
 import org.jivesoftware.openfire.plugin.service.UserServiceLegacy;
@@ -59,6 +60,7 @@ public class JerseyWrapper extends ServletContainer {
 		prc.getClasses().add(UserServiceLegacy.class);
 		prc.getClasses().add(UserService.class);
 		prc.getClasses().add(UserRosterService.class);
+		prc.getClasses().add(UserPresenceService.class);
 		prc.getClasses().add(UserGroupService.class);
 		prc.getClasses().add(UserServiceProperties.class);
 		prc.getClasses().add(UserLockoutService.class);

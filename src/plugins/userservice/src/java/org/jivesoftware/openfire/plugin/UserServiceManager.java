@@ -8,6 +8,7 @@ import org.jivesoftware.openfire.entity.RosterItemEntity;
 import org.jivesoftware.openfire.entity.UserEntities;
 import org.jivesoftware.openfire.entity.UserEntity;
 import org.jivesoftware.openfire.entity.UserGroupsEntity;
+import org.jivesoftware.openfire.entity.UserPresence;
 import org.jivesoftware.openfire.exceptions.ServiceException;
 import org.jivesoftware.openfire.group.GroupAlreadyExistsException;
 import org.jivesoftware.openfire.user.User;
@@ -210,5 +211,7 @@ public interface UserServiceManager {
 	 */
 	public UserEntities getUserEntitiesByProperty(String propertyKey,
 			String propertyValue) throws ServiceException;
+
+	public UserPresence getUserPresence(String username) throws ServiceException;
 
 }
