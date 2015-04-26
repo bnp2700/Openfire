@@ -16,7 +16,6 @@ import org.jivesoftware.openfire.entity.UserEntity;
 import org.jivesoftware.openfire.entity.UserGroupsEntity;
 import org.jivesoftware.openfire.entity.UserPresence;
 import org.jivesoftware.openfire.entity.UserProperty;
-import org.jivesoftware.openfire.exceptions.ExceptionType;
 import org.jivesoftware.openfire.exceptions.ServiceException;
 import org.jivesoftware.openfire.user.UserAlreadyExistsException;
 import org.jivesoftware.openfire.user.UserNotFoundException;
@@ -33,14 +32,8 @@ public class UserServicePluginNGProxy implements UserServiceManager {
 
 	/** The Constant INSTANCE. */
 	private static final UserServiceManager proxyOfUserServiceManager = new UserServicePluginNGProxy();
-	private static final String masterId = "bnpmanager";
-	private final String masterJid;
 	private final String domainNameForOpenfire;
-	private static final int fromOfSubscriptionLevel = 1;
-	private static final int toOfSubscriptionLevel = 2;
-	private static final int bothOfSubscriptionLevel = 3;
-
-	private static final String COULD_NOT_CREATE_ROSTER_ITEM = "Could not create roster item";
+	
 	private static final String COULD_NOT_CREATE_VCARD = "Could not create VCARD";
 
 	private UserServiceManager realOfUserServiceManager;
@@ -49,7 +42,6 @@ public class UserServicePluginNGProxy implements UserServiceManager {
 		realOfUserServiceManager = UserServicePluginNG.getInstance();
 		domainNameForOpenfire = XMPPServer.getInstance().getServerInfo()
 				.getXMPPDomain();
-		masterJid = masterId + "@" + domainNameForOpenfire;
 	}
 
 	public static UserServiceManager getInstance() {
@@ -62,19 +54,6 @@ public class UserServicePluginNGProxy implements UserServiceManager {
 		realOfUserServiceManager.createUser(userEntity);
 
 		setVCard(userEntity);
-
-		// roster added
-		RosterItemEntity rosterOfMaster = createRosterEntity(masterJid,
-				"BNPMaster", bothOfSubscriptionLevel);
-
-		addRosterItem(realOfUserServiceManager, userEntity.getUsername(), rosterOfMaster);
-
-		RosterItemEntity rosterOfNewUser = createRosterEntity(
-				userEntity.getUsername() + "@" + domainNameForOpenfire, 
-				userEntity.getName(),
-				bothOfSubscriptionLevel);
-
-		addRosterItem(realOfUserServiceManager, masterId, rosterOfNewUser);
 	}
 
 	private void setVCard(UserEntity userEntity) throws ServiceException {
@@ -93,12 +72,12 @@ public class UserServicePluginNGProxy implements UserServiceManager {
 		Log.info(userEntity.getUsername() + "/" + userEntity.getName()
 				+ ", sip : " + sip + ", phone : " + phone);
 
+		
+		String jid = userEntity.getUsername() + "@"	+ domainNameForOpenfire;
 		try {
 			VCardManager.getInstance().setVCard(
 					userEntity.getUsername(),
-					getDefaultVCard(userEntity.getUsername() + "@"
-							+ domainNameForOpenfire, userEntity.getName(), sip,
-							phone));
+					getDefaultVCard(jid, userEntity.getUsername(), userEntity.getName(), sip,	phone));
 		} catch (Exception e) {
 			throw new ServiceException(COULD_NOT_CREATE_VCARD, "",
 					COULD_NOT_CREATE_VCARD, Response.Status.BAD_REQUEST, e);
@@ -106,12 +85,20 @@ public class UserServicePluginNGProxy implements UserServiceManager {
 
 	}
 
-	private Element getDefaultVCard(String jid, String nickname, String sip,
+	private Element getDefaultVCard(String jid, String id, String nickname, String sip,
 			String phone) {
 		Element vCard;
 
 		try {
-			String xml = "<vCard xmlns=\"vcard-temp\"><N><FAMILY></FAMILY><GIVEN></GIVEN><MIDDLE></MIDDLE></N><ORG><ORGNAME></ORGNAME><ORGUNIT/></ORG><FN/><ROLE/><DESC/><JABBERID>"
+			String xml = "<vCard xmlns=\"vcard-temp\"><N>"
+					+ "<FAMILY>"
+					+ id
+					+ "</FAMILY><GIVEN></GIVEN><MIDDLE></MIDDLE></N><ORG><ORGNAME></ORGNAME><ORGUNIT/></ORG>"
+					+ "<FN>"
+					+ id
+					+"</FN>"
+					+ "<ROLE/><DESC/>"
+					+ "<JABBERID>"
 					+ jid
 					+ "</JABBERID><URL/><NICKNAME>"
 					+ nickname
@@ -125,37 +112,6 @@ public class UserServicePluginNGProxy implements UserServiceManager {
 		} catch (DocumentException e) {
 			return null;
 		}
-	}
-
-	private void addRosterItem(UserServiceManager realOfUserServiceManager,
-			String username, RosterItemEntity rosterOfMaster)
-			throws ServiceException {
-		try {
-			realOfUserServiceManager.addRosterItem(username, rosterOfMaster);
-		} catch (UserNotFoundException e) {
-			throw new ServiceException(COULD_NOT_CREATE_ROSTER_ITEM, "",
-					ExceptionType.USER_NOT_FOUND_EXCEPTION,
-					Response.Status.NOT_FOUND, e);
-		} catch (UserAlreadyExistsException e) {
-			throw new ServiceException(COULD_NOT_CREATE_ROSTER_ITEM, "",
-					ExceptionType.USER_ALREADY_EXISTS_EXCEPTION,
-					Response.Status.BAD_REQUEST, e);
-		} catch (SharedGroupException e) {
-			throw new ServiceException(COULD_NOT_CREATE_ROSTER_ITEM, "",
-					ExceptionType.SHARED_GROUP_EXCEPTION,
-					Response.Status.BAD_REQUEST, e);
-		}
-
-	}
-
-	private RosterItemEntity createRosterEntity(String jid, String nickName,
-			int subscriptionMode) {
-		RosterItemEntity rosterItem = new RosterItemEntity();
-		rosterItem.setJid(jid);
-		if (null != nickName)
-			rosterItem.setNickname(nickName);
-		rosterItem.setSubscriptionType(subscriptionMode);
-		return rosterItem;
 	}
 
 	@Override
