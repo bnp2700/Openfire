@@ -31,6 +31,8 @@ import org.jivesoftware.openfire.user.UserAlreadyExistsException;
 import org.jivesoftware.openfire.user.UserManager;
 import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.openfire.utils.UserUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Presence;
 
@@ -39,6 +41,8 @@ import org.xmpp.packet.Presence;
  */
 public class UserServicePluginNG implements UserServiceManager {
 	/** The Constant INSTANCE. */
+	private static final Logger Log = LoggerFactory
+			.getLogger(UserServicePluginNG.class);
 	private static final UserServiceManager INSTANCE = new UserServicePluginNG();
 
 	
@@ -326,15 +330,16 @@ public class UserServicePluginNG implements UserServiceManager {
 	@Override
 	public UserPresence getUserPresence(String username) throws ServiceException {
 		UserPresence userPresence = new UserPresence();
-		User user = null;
-		user = getAndCheckUser(username);
-		
+		User user = getAndCheckUser(username);
 		Presence presence = presenceManager.getPresence( user );
 		if( presence == null ) {
 			userPresence.setConnected(false);
 		} else {
 			userPresence.setConnected(true);
-			userPresence.setStatus(presence.getStatus());
+			if((presence.getShow() != null) && (Presence.Show.dnd.compareTo(presence.getShow()) == 0)) {
+					userPresence.setStatus("dnd");				
+			}
+			
 		}
 		
 		return userPresence;
